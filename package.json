@@ -1,13 +1,26 @@
 {
   "name": "guess-number-game",
   "version": "1.0.0",
+  "description": "Гра 'Вгадай число' з тестуванням",
   "type": "module",
   "scripts": {
+    "dev": "http-server . -p 5500",
     "test:unit": "vitest",
     "test:unit:ui": "vitest --ui",
     "test:unit:coverage": "vitest --coverage",
     "test:e2e": "playwright test",
     "test:e2e:ui": "playwright test --ui",
     "test": "npm run test:unit && npm run test:e2e"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.41.1",
+    "@testing-library/dom": "^9.3.4",
+    "@testing-library/jest-dom": "^6.4.2",
+    "@testing-library/user-event": "^14.5.2",
+    "@vitest/coverage-v8": "^1.6.1",
+    "@vitest/ui": "^1.6.1",
+    "http-server": "^14.1.1",
+    "jsdom": "^23.2.0",
+    "vitest": "^1.6.1"
   }
 }
