@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Guess the Number</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="light">
+    
+<div class="container">
+
+    <h1>Guess the Number</h1>
+
+    <div class="status">
+        <div>Digits: <span id="digitsDisplay"></span></div>
+        <div>Attempts: <span id="attemptsDisplay"></span></div>
+        <div>Time: <span id="timer">000</span></div>
+    </div>
+
+    <div class="controls">
+        <input type="text" id="guessInput" placeholder="Enter digits">
+        <button onclick="makeGuess()">Try</button>
+    </div>
+
+    <div id="results"></div>
+
+    <div class="settings">
+        <button onclick="openSettings()">Settings</button>
+
+        <div id="settingsModal" class="modal hidden">
+            <div class="modal-content">
+                <h3>Game Settings</h3>
+
+                <label>Length:
+                    <input type="number" id="lengthInput" min="1" max="10" value="4">
+                </label>
+
+                <label>Attempts:
+                    <input type="number" id="attemptsInput" min="1" max="10" value="4">
+                </label>
+
+                <label>
+                    <input type="checkbox" id="duplicatesInput">
+                    Allow duplicates
+                </label>
+
+                <div class="modal-buttons">
+                    <button onclick="applySettings()">Apply</button>
+                    <button onclick="closeSettings()">Close</button>
+                </div>
+            </div>
+        </div>
+
+        <br><br>
+        <button onclick="toggleTheme()">Toggle Theme</button>
+        <button onclick="restartGame()">Restart</button>
+    </div>
+
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>
