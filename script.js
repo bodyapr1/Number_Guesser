@@ -1,6 +1,6 @@
 // Константи для кольорів
 const COLORS = {
-    GREEN: '#03C03A',
+    GREEN: '#03C03B',
     YELLOW: '#FFD700',
     GREY: '#BEBEBE',
     ORANGE: '#FFA500',
