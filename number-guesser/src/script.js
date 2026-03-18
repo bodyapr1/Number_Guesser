@@ -136,3 +136,11 @@ function applySettings() {
 }
 
 restartGame();
+
+// Додай це в кінець script.js для тестів
+if (typeof module !== 'undefined') {
+    window.checkGuess = checkGuess;
+    window.generateSecretCode = generateSecretCode;
+    window.startTimer = startTimer;
+    window.makeGuess = makeGuess;
+}
