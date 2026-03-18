@@ -1,244 +1,138 @@
-// Константи для кольорів
-const COLORS = {
-    GREEN: '#03C03B',
-    YELLOW: '#FFD700',
-    GREY: '#BEBEBE',
-    ORANGE: '#FFA500',
-    LIME: '#BFFF00'
-};
+let secretCode = [];
+let attemptsLeft = 4;
+let codeLength = 4;
+let allowDuplicates = false;
+let timer = 0;
+let timerInterval = null;
 
-// Стан гри
-let gameState = {
-    secretCode: [],
-    codeLength: 4,
-    attemptsLeft: 4,
-    attemptsLimit: 4,
-    allowDuplicates: false,
-    timerSeconds: 0,
-    timerRunning: false,
-    gameStarted: false,
-    guessesResults: []
-};
+function generateSecretCode() {
+    let digits = [...Array(10).keys()].map(String);
 
-// DOM елементи
-const guessInput = document.getElementById('guess-input');
-const guessBtn = document.getElementById('guess-btn');
-const resultsDiv = document.getElementById('results');
-const timerSpan = document.getElementById('timer');
-const attemptsSpan = document.getElementById('attempts');
-const codeLengthSpan = document.getElementById('code-length');
-
-// Функція генерації секретного коду
-function generateSecretCode(length, allowDuplicates) {
-    const digits = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'];
-    
     if (!allowDuplicates) {
-        if (length > 10) length = 10;
-        const shuffled = [...digits].sort(() => Math.random() - 0.5);
-        return shuffled.slice(0, length);
+        digits.sort(() => Math.random() - 0.5);
+        return digits.slice(0, codeLength);
     } else {
-        const code = [];
-        for (let i = 0; i < length; i++) {
+        let code = [];
+        for (let i = 0; i < codeLength; i++) {
             code.push(digits[Math.floor(Math.random() * 10)]);
         }
         return code;
     }
 }
 
-// Функція перевірки припущення (адаптована з твого Python коду)
-function checkGuess(secretCode, guess) {
-    if (secretCode.length !== guess.length) {
-        return Array(guess.length).fill(COLORS.GREY);
+function restartGame() {
+    codeLength = parseInt(document.getElementById("lengthInput").value);
+    attemptsLeft = parseInt(document.getElementById("attemptsInput").value);
+    allowDuplicates = document.getElementById("duplicatesInput").checked;
+
+    secretCode = generateSecretCode();
+    document.getElementById("results").innerHTML = "";
+    document.getElementById("attemptsDisplay").innerText = attemptsLeft;
+    document.getElementById("digitsDisplay").innerText = codeLength;
+    document.getElementById("timer").innerText = "000";
+    timer = 0;
+
+    if (timerInterval) clearInterval(timerInterval);
+    timerInterval = null;
+}
+
+function startTimer() {
+    if (timerInterval) return;
+    timerInterval = setInterval(() => {
+        timer++;
+        if (timer <= 999)
+            document.getElementById("timer").innerText = timer.toString().padStart(3, "0");
+    }, 1000);
+}
+
+function makeGuess() {
+    let input = document.getElementById("guessInput");
+    let guess = input.value;
+    input.value = "";
+
+    if (guess.length !== codeLength || !/^\d+$/.test(guess)) {
+        alert("Enter correct digits!");
+        return;
     }
 
-    const n = secretCode.length;
-    const finalColors = Array(n).fill(COLORS.GREY);
-    const secretOriginal = [...secretCode];
-    const guessOriginal = [...guess];
+    if (!timerInterval) startTimer();
 
-    // Рахуємо входження цифр в секретному коді
-    const secretCounts = {};
-    secretOriginal.forEach(digit => {
-        secretCounts[digit] = (secretCounts[digit] || 0) + 1;
-    });
+    let colors = checkGuess(secretCode, guess.split(""));
+    displayResult(guess, colors);
 
-    const neededColors = {};
-    const exactMatchesCount = {};
-    const misplacedPresentCount = {};
+    attemptsLeft--;
+    document.getElementById("attemptsDisplay").innerText = attemptsLeft;
 
-    const secretTempForMisplaced = [...secretOriginal];
+    if (colors.every(c => c === "green")) {
+        clearInterval(timerInterval);
+        alert("Victory! Secret: " + secretCode.join(""));
+    } else if (attemptsLeft === 0) {
+        clearInterval(timerInterval);
+        alert("Loss! Secret: " + secretCode.join(""));
+    }
+}
 
-    // Перший прохід: точні збіги
-    for (let i = 0; i < n; i++) {
-        if (guessOriginal[i] === secretOriginal[i]) {
-            const digit = guessOriginal[i];
-            exactMatchesCount[digit] = (exactMatchesCount[digit] || 0) + 1;
-            secretTempForMisplaced[i] = null;
+function checkGuess(secret, guess) {
+    let result = new Array(codeLength).fill("grey");
+    let secretCopy = [...secret];
+
+    // GREEN
+    for (let i = 0; i < codeLength; i++) {
+        if (guess[i] === secret[i]) {
+            result[i] = "green";
+            secretCopy[i] = null;
         }
     }
 
-    // Другий прохід: цифри на неправильних позиціях
-    for (let i = 0; i < n; i++) {
-        if (guessOriginal[i] !== secretOriginal[i]) {
-            const digit = guessOriginal[i];
-            const secretIdx = secretTempForMisplaced.indexOf(digit);
-            if (secretIdx !== -1) {
-                misplacedPresentCount[digit] = (misplacedPresentCount[digit] || 0) + 1;
-                secretTempForMisplaced[secretIdx] = null;
+    // YELLOW
+    for (let i = 0; i < codeLength; i++) {
+        if (result[i] === "grey") {
+            let index = secretCopy.indexOf(guess[i]);
+            if (index !== -1) {
+                result[i] = "yellow";
+                secretCopy[index] = null;
             }
         }
     }
 
-    // Визначення кольорів (спрощена логіка для JS)
-    for (let i = 0; i < n; i++) {
-        const digit = guessOriginal[i];
-        
-        if (guessOriginal[i] === secretOriginal[i]) {
-            finalColors[i] = COLORS.GREEN;
-        } else if (secretOriginal.includes(digit)) {
-            finalColors[i] = COLORS.YELLOW;
-        } else {
-            finalColors[i] = COLORS.GREY;
-        }
-    }
-
-    return finalColors;
+    return result;
 }
 
-// Функція відображення результатів
-function displayGuessResult(guess, colors) {
-    const guessRow = document.createElement('div');
-    guessRow.className = 'guess-row';
-    
+function displayResult(guess, colors) {
+    let row = document.createElement("div");
+    row.className = "row";
+
     for (let i = 0; i < guess.length; i++) {
-        const digitBox = document.createElement('div');
-        digitBox.className = 'digit-box';
-        digitBox.textContent = guess[i];
-        
-        // Додаємо відповідний клас кольору
-        if (colors[i] === COLORS.GREEN) digitBox.classList.add('green');
-        else if (colors[i] === COLORS.YELLOW) digitBox.classList.add('yellow');
-        else if (colors[i] === COLORS.ORANGE) digitBox.classList.add('orange');
-        else if (colors[i] === COLORS.LIME) digitBox.classList.add('lime');
-        else digitBox.classList.add('gray');
-        
-        guessRow.appendChild(digitBox);
+        let cell = document.createElement("div");
+        cell.className = "cell " + colors[i];
+        cell.innerText = guess[i];
+        row.appendChild(cell);
     }
-    
-    resultsDiv.prepend(guessRow);
+
+    document.getElementById("results").appendChild(row);
 }
 
-// Функція очищення результатів
-function clearResults() {
-    resultsDiv.innerHTML = '';
+function applySettings() {
+    restartGame();
 }
 
-// Валідація введення
-guessInput.addEventListener('input', function(e) {
-    let value = e.target.value;
-    // Залишаємо тільки цифри
-    value = value.replace(/[^\d]/g, '');
-    // Обмежуємо довжину
-    if (value.length > gameState.codeLength) {
-        value = value.slice(0, gameState.codeLength);
-    }
-    e.target.value = value;
-});
-
-// Обробка спроби
-function handleGuess() {
-    const guess = guessInput.value;
-    
-    if (guess.length !== gameState.codeLength) {
-        alert(`Будь ласка, введіть ${gameState.codeLength} цифри`);
-        return;
-    }
-    
-    if (!gameState.gameStarted) {
-        startTimer();
-        gameState.gameStarted = true;
-    }
-    
-    const guessArray = guess.split('');
-    const colors = checkGuess(gameState.secretCode, guessArray);
-    
-    gameState.guessesResults.push({ guess: guessArray, colors });
-    displayGuessResult(guessArray, colors);
-    
-    gameState.attemptsLeft--;
-    attemptsSpan.textContent = gameState.attemptsLeft;
-    guessInput.value = '';
-    
-    // Перевірка перемоги
-    if (colors.every(color => color === COLORS.GREEN)) {
-        stopTimer();
-        alert(`Вітаю! Ви вгадали число ${gameState.secretCode.join('')}! Час: ${gameState.timerSeconds} секунд`);
-        guessBtn.disabled = true;
-        guessInput.disabled = true;
-    }
-    // Перевірка поразки
-    else if (gameState.attemptsLeft === 0) {
-        stopTimer();
-        alert(`На жаль, ви не вгадали. Загадане число: ${gameState.secretCode.join('')}. Час: ${gameState.timerSeconds} секунд`);
-        guessBtn.disabled = true;
-        guessInput.disabled = true;
-    }
+function toggleTheme() {
+    let body = document.body;
+    body.classList.toggle("dark");
+    body.classList.toggle("light");
 }
 
-// Таймер
-function startTimer() {
-    gameState.timerRunning = true;
-    gameState.timerSeconds = 0;
-    updateTimer();
+function openSettings() {
+    document.getElementById("settingsModal").classList.remove("hidden");
 }
 
-function stopTimer() {
-    gameState.timerRunning = false;
+function closeSettings() {
+    document.getElementById("settingsModal").classList.add("hidden");
 }
 
-function updateTimer() {
-    if (!gameState.timerRunning) return;
-    
-    timerSpan.textContent = String(gameState.timerSeconds).padStart(3, '0');
-    
-    if (gameState.timerSeconds < 999) {
-        gameState.timerSeconds++;
-        setTimeout(updateTimer, 1000);
-    } else {
-        stopTimer();
-        alert(`Час вийшов! Загадане число: ${gameState.secretCode.join('')}`);
-        guessBtn.disabled = true;
-        guessInput.disabled = true;
-    }
+function applySettings() {
+    closeSettings();
+    restartGame();
 }
 
-// Нова гра
-function newGame() {
-    stopTimer();
-    gameState.secretCode = generateSecretCode(gameState.codeLength, gameState.allowDuplicates);
-    gameState.attemptsLeft = gameState.attemptsLimit;
-    gameState.gameStarted = false;
-    gameState.guessesResults = [];
-    gameState.timerSeconds = 0;
-    
-    clearResults();
-    guessInput.value = '';
-    guessInput.disabled = false;
-    guessBtn.disabled = false;
-    attemptsSpan.textContent = gameState.attemptsLeft;
-    timerSpan.textContent = '000';
-    
-    console.log('Секретний код (для розробника):', gameState.secretCode.join(''));
-}
-
-// Ініціалізація гри
-function initGame() {
-    newGame();
-    guessBtn.addEventListener('click', handleGuess);
-    guessInput.addEventListener('keypress', function(e) {
-        if (e.key === 'Enter') handleGuess();
-    });
-}
-
-// Запуск гри після завантаження сторінки
-document.addEventListener('DOMContentLoaded', initGame);
+restartGame();
