@@ -5,15 +5,22 @@ let allowDuplicates = false;
 let timer = 0;
 let timerInterval = null;
 
-function generateSecretCode() {
+const statusEl = document.getElementById('envStatus')
+if (statusEl) {
+  statusEl.textContent = 'Mode: ' + import.meta.env.VITE_APP_STATUS
+  statusEl.style.cssText = 'display:inline-block;padding:2px 10px;border:1px solid #333;border-radius:4px'
+}
+
+
+function generateSecretCode(length = codeLength, duplicates = allowDuplicates) {
     let digits = [...Array(10).keys()].map(String);
 
-    if (!allowDuplicates) {
+    if (!duplicates) {
         digits.sort(() => Math.random() - 0.5);
-        return digits.slice(0, codeLength);
+        return digits.slice(0, length);
     } else {
         let code = [];
-        for (let i = 0; i < codeLength; i++) {
+        for (let i = 0; i < length; i++) {
             code.push(digits[Math.floor(Math.random() * 10)]);
         }
         return code;
@@ -72,12 +79,12 @@ function makeGuess() {
     }
 }
 
-function checkGuess(secret, guess) {
-    let result = new Array(codeLength).fill("grey");
+function checkGuess(secret, guess, length = codeLength) {
+    let result = new Array(length).fill("grey");
     let secretCopy = [...secret];
 
     // GREEN
-    for (let i = 0; i < codeLength; i++) {
+    for (let i = 0; i < length; i++) {
         if (guess[i] === secret[i]) {
             result[i] = "green";
             secretCopy[i] = null;
@@ -85,7 +92,7 @@ function checkGuess(secret, guess) {
     }
 
     // YELLOW
-    for (let i = 0; i < codeLength; i++) {
+    for (let i = 0; i < length; i++) {
         if (result[i] === "grey") {
             let index = secretCopy.indexOf(guess[i]);
             if (index !== -1) {
@@ -112,10 +119,6 @@ function displayResult(guess, colors) {
     document.getElementById("results").appendChild(row);
 }
 
-function applySettings() {
-    restartGame();
-}
-
 function toggleTheme() {
     let body = document.body;
     body.classList.toggle("dark");
@@ -135,12 +138,9 @@ function applySettings() {
     restartGame();
 }
 
-restartGame();
-
-// Додай це в кінець script.js для тестів
-if (typeof module !== 'undefined') {
-    window.checkGuess = checkGuess;
-    window.generateSecretCode = generateSecretCode;
-    window.startTimer = startTimer;
-    window.makeGuess = makeGuess;
+// Запускаємо гру тільки в браузері
+if (typeof document !== 'undefined') {
+    restartGame();
 }
+
+export { generateSecretCode, checkGuess }

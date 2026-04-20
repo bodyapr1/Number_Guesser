@@ -1,4 +1,7 @@
-import { defineConfig } from 'vitest/config';
-export default defineConfig({
-  test: { environment: 'jsdom' },
+const { defineConfig } = require('vitest/config');
+
+module.exports = defineConfig({
+  test: {
+    globals: true,
+  },
 });
