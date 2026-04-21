@@ -1,0 +1,95 @@
+body {
+    font-family: Arial;
+    text-align: center;
+    transition: 0.3s;
+}
+
+.light {
+    background: #f0f0f0;
+    color: black;
+}
+
+.dark {
+    background: #212121;
+    color: white;
+}
+
+.container {
+    max-width: 600px;
+    margin: auto;
+}
+
+.status {
+    display: flex;
+    justify-content: space-between;
+    margin: 15px 0;
+}
+
+.controls input {
+    padding: 8px;
+    font-size: 16px;
+}
+
+.controls button {
+    padding: 8px 15px;
+    margin-left: 5px;
+}
+
+#results {
+    margin-top: 20px;
+}
+
+.row {
+    display: flex;
+    justify-content: center;
+}
+
+.cell {
+    width: 40px;
+    height: 40px;
+    margin: 5px;
+    line-height: 40px;
+    border: 1px solid black;
+    font-weight: bold;
+}
+
+.green { background: #03C03C; }
+.yellow { background: #FFD700; }
+.grey { background: transparent; }
+.orange { background: #FFA500; }
+.lime { background: #BFFF00; }
+
+.modal {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.hidden {
+    display: none;
+}
+
+.modal-content {
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    width: 300px;
+    text-align: left;
+}
+
+.dark .modal-content {
+    background: #333;
+    color: white;
+}
+
+.modal-content label {
+    display: block;
+    margin: 10px 0;
+}
+
+.modal-buttons {
+    text-align: right;
+}
