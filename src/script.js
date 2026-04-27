@@ -144,3 +144,8 @@ if (typeof document !== 'undefined') {
 }
 
 export { generateSecretCode, checkGuess }
+
+// Замість export
+if (typeof module !== 'undefined' && module.exports) {
+  module.exports = { generateSecretCode, checkGuess }
+}
