@@ -127,7 +127,6 @@
     "jsonfile": "^6.2.0",
     "jsprim": "^2.0.2",
     "lightningcss": "^1.32.0",
-    "lightningcss-win32-x64-msvc": "^1.32.0",
     "listr2": "^3.14.0",
     "lodash": "^4.17.23",
     "lodash.once": "^4.1.1",
@@ -256,5 +255,8 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "type": "module"
+  "type": "module",
+  "optionalDependencies": {
+    "lightningcss-win32-x64-msvc": "^1.32.0"
+  }
 }
