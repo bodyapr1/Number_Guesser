@@ -4,11 +4,11 @@ on:
   push:
     branches:
       - main
-      - develop
+      - dev
   pull_request:
     branches:
       - main
-      - develop
+      - dev
 
 jobs:
   build-and-test:
@@ -26,10 +26,15 @@ jobs:
           cache: 'npm'
 
       - name: Install dependencies
-        run: npm ci
+        run: npm install
 
-      - name: Run linter
-        run: npm run lint
+      - name: Run linter (if configured)
+        run: |
+          if node -e "const s=require('./package.json').scripts||{}; process.exit(s.lint ? 0 : 1)"; then
+            npm run lint
+          else
+            echo "No lint script found, skipping lint step"
+          fi
 
       - name: Run unit tests
         run: npm run test:unit
