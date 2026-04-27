@@ -23,19 +23,18 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 20
-          # Вимикаємо кешування через проблеми з платформозалежними пакетами
-          # cache: 'npm'
+          cache: 'npm'
 
-      - name: Install dependencies (skip optional packages)
+      - name: Install dependencies
+        run: npm ci --include=optional
+
+      - name: Run linter (if configured)
         run: |
-          # Видаляємо package-lock.json для чистої установки
-          rm -f package-lock.json
-          # Встановлюємо без опціональних платформозалежних пакетів
-          npm install --no-optional --legacy-peer-deps
-
-      - name: Run linter
-        run: npm run lint
-        continue-on-error: true  # Тимчасово, якщо лінтер ще не налаштований
+          if node -e "const s=require('./package.json').scripts||{}; process.exit(s.lint ? 0 : 1)"; then
+            npm run lint
+          else
+            echo "No lint script found, skipping lint step"
+          fi
 
       - name: Run unit tests
         run: npm run test:unit
